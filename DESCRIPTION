@@ -12,5 +12,7 @@ Imports:
     quadprog,
     foreach,
     Matrix
-Suggests: 
+Suggests:
+    spelling, 
     testthat
+Language: en-US
