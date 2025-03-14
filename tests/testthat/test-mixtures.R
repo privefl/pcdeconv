@@ -28,7 +28,7 @@ test_that("Function pc_mixtures works", {
   expect_true(all(mix3 <= 1))
   expect_true(all(rowSums(mix3) < (1 + 1e-8)))
   expect_true(any(rowSums(mix3) < 0.9))
-  expect_true(all(rowSums(mix3) >= 0.5))
+  expect_true(all(rowSums(mix3) > (0.5 - 1e-8)))
   expect_false(any(rowSums(mix2 > 0) == 3))
 })
 
