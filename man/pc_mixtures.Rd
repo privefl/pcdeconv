@@ -39,8 +39,12 @@ A matrix of mixture coefficients (N x L).
 \description{
 Title
 }
+\details{
+A \code{foreach} loop is used internally, which will use parallelism if you
+registered a parallel backend with e.g. \code{doParallel::registerDoParallel}.
+}
 \examples{
 PC <- prcomp(iris[1:4])$x
 PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
-pc_mixtures(PC, PC_ref)
+Q <- pc_mixtures(PC, PC_ref)
 }

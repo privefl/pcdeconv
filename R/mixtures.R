@@ -25,11 +25,15 @@ globalVariables("i")
 #' @export
 #'
 #' @import foreach
+#' @details
+#' A `foreach` loop is used internally, which will use parallelism if you
+#' registered a parallel backend with e.g. `doParallel::registerDoParallel`.
+#'
 #'
 #' @examples
 #' PC <- prcomp(iris[1:4])$x
 #' PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
-#' pc_mixtures(PC, PC_ref)
+#' Q <- pc_mixtures(PC, PC_ref)
 pc_mixtures <- function(PC, PC_ref,
                         min_coef = 1e-5, max_coef = 1,
                         min_sum = 1 - 1e-8, nb_coef = Inf) {
