@@ -2,18 +2,16 @@
 % Please edit documentation in R/refs.R
 \name{pc_weights_refs}
 \alias{pc_weights_refs}
-\title{Obtain weights to compute references}
+\title{Weights to compute references}
 \usage{
-pc_weights_refs(PC, Q, m_exponent, thr_coef = 0.6)
+pc_weights_refs(Q, m_exponent, thr_coef = 0.6)
 }
 \arguments{
-\item{PC}{Matrix of principal components (N x K, where K is the number of PCs).}
-
 \item{Q}{Matrix of mixture coefficients (L x K), typically the output
 of \link{pc_mixtures}.}
 
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
-A value between 3 and 30 is usually appropriate.}
+A value between 3 and 30 is usually appropriate to priotize larger Q values.}
 
 \item{thr_coef}{Threshold under which coefficients of \code{Q} are not used.
 Default is \code{0.6}.}
@@ -23,15 +21,16 @@ Matrix \code{W} of weights (N x L) to be used to compute reference
 positions in PCs as \code{PC_ref <- crossprod(W, PC)}.
 }
 \description{
-Obtain weights to compute references
+Weights to compute references
 }
 \examples{
 PC <- prcomp(iris[1:4])$x
-PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
+PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
+pc_plot(PC, PC_ref, color_var = iris$Species)
+
 Q <- pc_mixtures(PC, PC_ref)
-W <- pc_weights_refs(PC, Q, m_exponent = 10)
+W <- pc_weights_refs(Q, m_exponent = 10)
 PC_ref2 <- crossprod(W, PC)
-plot(PC, pch = 20, col = "green")
-points(PC_ref,  col = "orange", pch = 3, lwd = 2)
-points(PC_ref2, col = "purple", pch = 4, lwd = 2)
+pc_plot(PC, PC_ref2, color_var = iris$Species)
+
 }

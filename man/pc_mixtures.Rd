@@ -2,7 +2,7 @@
 % Please edit documentation in R/mixtures.R
 \name{pc_mixtures}
 \alias{pc_mixtures}
-\title{Title}
+\title{Mixture coefficients}
 \usage{
 pc_mixtures(
   PC,
@@ -37,7 +37,7 @@ Default is \code{1 - 1e-8}, i.e. the sum must be very close to \code{1}.}
 A matrix of mixture coefficients (N x L).
 }
 \description{
-Title
+Mixture coefficients
 }
 \details{
 A \code{foreach} loop is used internally, which will use parallelism if you
@@ -45,6 +45,7 @@ registered a parallel backend with e.g. \code{doParallel::registerDoParallel}.
 }
 \examples{
 PC <- prcomp(iris[1:4])$x
-PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
+PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
 Q <- pc_mixtures(PC, PC_ref)
+
 }

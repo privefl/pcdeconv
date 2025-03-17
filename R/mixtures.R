@@ -5,7 +5,7 @@ globalVariables("i")
 
 ################################################################################
 
-#' Title
+#' Mixture coefficients
 #'
 #' @param PC Matrix of principal components (N x K, where K is the number of PCs).
 #' @param PC_ref Matrix of reference positions in the PCs (L x K, where L is the
@@ -32,8 +32,9 @@ globalVariables("i")
 #'
 #' @examples
 #' PC <- prcomp(iris[1:4])$x
-#' PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
+#' PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
 #' Q <- pc_mixtures(PC, PC_ref)
+#'
 pc_mixtures <- function(PC, PC_ref,
                         min_coef = 1e-5, max_coef = 1,
                         min_sum = 1 - 1e-8, nb_coef = Inf) {
