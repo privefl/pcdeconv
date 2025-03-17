@@ -23,7 +23,6 @@ plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.2) {
 #'
 #' @param PC
 #' @param PC_ref
-#' @param ind_sub
 #' @param nfacet
 #' @param color_var
 #'
@@ -34,7 +33,7 @@ plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.2) {
 #' @importFrom cowplot plot_grid
 #'
 #' @examples
-pc_plot <- function(PC, PC_ref = PC[0, ], ind_sub = seq_len(nrow(PC)),
+pc_plot <- function(PC, PC_ref = PC[0, ],
                     nfacet = 9, color_var = NA, legend_ratio = 0.2, color = "black") {
 
   print(plot_grid2(
@@ -43,7 +42,7 @@ pc_plot <- function(PC, PC_ref = PC[0, ], ind_sub = seq_len(nrow(PC)),
       p <- ggplot() + theme_bw() +
         scale_x_continuous(expand = expansion(mult = 0.1)) +
         scale_y_continuous(expand = expansion(mult = 0.1)) +
-        geom_point(aes(PC[ind_sub, pc_num[1]], PC[ind_sub, pc_num[2]],
+        geom_point(aes(PC[, pc_num[1]], PC[, pc_num[2]],
                        color = color_var)) +
         geom_point(aes(PC_ref[, pc_num[1]], PC_ref[, pc_num[2]]),
                    color = color, size = 3, pch = 3, stroke = 2) +
@@ -57,6 +56,62 @@ pc_plot <- function(PC, PC_ref = PC[0, ], ind_sub = seq_len(nrow(PC)),
     }),
     legend_ratio = legend_ratio
   ))
+}
+
+################################################################################
+
+#' Title
+#'
+#' @param Q
+#' @param group
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rank_in_group <- function(Q, group) {
+
+  main_comp_by_group <- by(Q, group, function(x) which.max(colSums(x)))
+  val_main_comp_group <- Q[cbind(seq_along(group), main_comp_by_group[group])]
+
+  data.frame(.GRP = group, .VAL = val_main_comp_group) %>%
+    group_by(.GRP) %>%
+    mutate(.ID = rank(-.VAL, ties.method = "first"), .VAL = NULL) %>%
+    ungroup()
+}
+
+################################################################################
+
+#' Title
+#'
+#' @param Q
+#' @param group
+#' @param colors
+#'
+#' @return
+#' @export
+#'
+#' @import dplyr ggplot2
+#'
+#' @examples
+pc_plot_mixtures <- function(Q, rank_in_group,
+                             colors = c("#64cb64", "#e7be28", "#b94a7b", "#6687d2",
+                                        "#add042", "#cc4eb7", "#e6831f", "#8d5edf",
+                                        "#5ccda0", "#613d9a", "#c79335", "#46d0e5",
+                                        "#d14f29", "#60924e", "#a45441")) {
+
+  cbind.data.frame(rank_in_group, Q) %>%
+    tidyr::pivot_longer(-c(.GRP, .ID)) %>%
+    ggplot() +
+    geom_col(aes(.ID, value, color = name, fill = name)) +
+    theme_bw(13) +
+    scale_x_continuous(breaks = NULL) +
+    scale_color_manual(values = colors) +
+    scale_fill_manual(values = colors) +
+    theme(legend.position = "none") +
+    facet_wrap(~ .GRP, nrow = 9, scales = "free_x") +
+    labs(x = "Individual # (ordered by main component of group)",
+         y = "Ancestry proportion", color = "Ancestry", fill = "Ancestry")
 }
 
 ################################################################################

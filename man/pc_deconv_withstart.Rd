@@ -15,13 +15,11 @@ pc_deconv_withstart(
 )
 }
 \arguments{
-\item{PC}{Matrix of principal components (N x K, where K is the number of PCs).}
-
 \item{PC_ref_init}{Matrix of reference positions in the PCs (L x K, where L
 is the number of references) to be used as \emph{starting values}.}
 
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
-A value between 3 and 30 is usually appropriate.}
+A value between 3 and 30 is usually appropriate to priotize larger Q values.}
 
 \item{thr_coef}{Threshold under which coefficients of \code{Q} are not used.
 Default is \code{0.6}.}
@@ -56,11 +54,12 @@ Alternating deconvolution with starting value.
 \examples{
 PC <- prcomp(iris[1:4])$x
 PC_ref_init <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
-pc_plot(PC, PC_ref_init)
+pc_plot(PC, PC_ref_init, color_var = iris$Species)
+
 W <- pc_deconv_withstart(PC, PC_ref_init, m_exponent = 5)
 PC_ref_conv <- crossprod(W, PC)
-pc_plot(PC, PC_ref_conv)
 pc_plot(PC, PC_ref_conv, color_var = iris$Species)
+
 }
 \seealso{
 \link{pc_deconv}

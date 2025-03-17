@@ -11,11 +11,13 @@ RoxygenNote: 7.3.2
 Imports: 
     bigparallelr,
     cowplot,
+    dplyr,
     quadprog,
     foreach,
     ggplot2,
     ggrepel,
-    Matrix
+    Matrix,
+    tidyr
 Suggests:
     spelling, 
     testthat

@@ -7,7 +7,6 @@
 pc_plot(
   PC,
   PC_ref = PC[0, ],
-  ind_sub = seq_len(nrow(PC)),
   nfacet = 9,
   color_var = NA,
   legend_ratio = 0.2,

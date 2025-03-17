@@ -4,13 +4,18 @@
 \alias{pc_deconv}
 \title{Alternating deconvolution with incremental building.}
 \usage{
-pc_deconv(PC, m_exponent, use_varimax = TRUE, ncores = 1, ...)
+pc_deconv(
+  PC,
+  m_exponent,
+  use_varimax = TRUE,
+  ind_plot = integer(0L),
+  ncores = 1,
+  ...
+)
 }
 \arguments{
-\item{PC}{Matrix of principal components (N x K, where K is the number of PCs).}
-
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
-A value between 3 and 30 is usually appropriate.}
+A value between 3 and 30 is usually appropriate to priotize larger Q values.}
 
 \item{use_varimax}{Whether to transform PCs using a varimax rotation?
 Default is \code{TRUE}. It generally helps with the warm starts (initializations).}

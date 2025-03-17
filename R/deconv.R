@@ -19,11 +19,12 @@
 #' @examples
 #' PC <- prcomp(iris[1:4])$x
 #' PC_ref_init <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
-#' pc_plot(PC, PC_ref_init, color = "red")
+#' pc_plot(PC, PC_ref_init, color_var = iris$Species)
+#'
 #' W <- pc_deconv_withstart(PC, PC_ref_init, m_exponent = 5)
 #' PC_ref_conv <- crossprod(W, PC)
-#' pc_plot(PC, PC_ref_conv, color = "red")
 #' pc_plot(PC, PC_ref_conv, color_var = iris$Species)
+#'
 pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
                                 conv_diff = 1e-4, max_iter = 100, ...) {
 
@@ -31,7 +32,7 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 
   for (ic in seq_len(max_iter)) {
 
-    W <- pc_weights_refs(PC, Q, m_exponent = m_exponent, thr_coef = thr_coef)
+    W <- pc_weights_refs(Q, m_exponent = m_exponent, thr_coef = thr_coef)
     PC_ref <- crossprod(W, PC)
 
     Q_prev <- Q
@@ -39,7 +40,7 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
     if (max(abs(Q - Q_prev)) < conv_diff) break
   }
 
-  pc_weights_refs(PC, Q, m_exponent = m_exponent, thr_coef = thr_coef)
+  pc_weights_refs(Q, m_exponent = m_exponent, thr_coef = thr_coef)
 }
 
 ################################################################################
@@ -72,11 +73,13 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' points(PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
 #' points(PC_ref_conv[[4]], col = "red", pch = 5, lwd = 2)
 #' points(PC_ref_conv[[5]], col = "blue", pch = 6, lwd = 2)
-pc_deconv <- function(PC, m_exponent, use_varimax = TRUE, ncores = 1, ...) {
+pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
+                      ind_plot = integer(0L), ncores = 1, ...) {
 
   stopifnot(ncol(PC) >= 2)
   stopifnot(ncol(PC) <= 100)
 
+  PC0.0 <- PC
   PC0 <- if (use_varimax) varimax(PC, normalize = FALSE)$loadings[] else PC
 
   all_res <- list()
@@ -99,13 +102,13 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE, ncores = 1, ...) {
     all_diff <- PC - Q0 %*% PC_ref
     dist <- abs(all_diff[, K])
     PC_ref <- rbind(PC_ref, PC[which.max(dist), ])
-    # add a plot here (PC_varimax with dist)
+    if (length(ind_plot) > 0)
+      pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot], color = "red")
 
     W <- pc_deconv_withstart(PC = PC, PC_ref_init = PC_ref,
                              m_exponent = m_exponent, ...)
-    PC_ref <- crossprod(W, PC)
 
-    all_res[[nrow(PC_ref)]] <- PC_ref
+    all_res[[nrow(PC_ref)]] <- crossprod(W, PC0.0)
   }
 
   all_res
