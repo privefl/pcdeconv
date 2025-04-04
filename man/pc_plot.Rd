@@ -8,13 +8,14 @@ pc_plot(
   PC,
   PC_ref = PC[0, ],
   nfacet = 9,
-  color_var = NA,
+  color_var = I("black"),
+  color_ref = "red",
   legend_ratio = 0.2,
-  color = "black"
+  ...
 )
 }
 \arguments{
-\item{color_var}{}
+\item{...}{Further parameters to pass to \link[cowplot:plot_grid]{cowplot::plot_grid}}
 }
 \description{
 Title

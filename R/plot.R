@@ -25,6 +25,7 @@ plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.2) {
 #' @param PC_ref
 #' @param nfacet
 #' @param color_var
+#' @param ... Further parameters to pass to [cowplot::plot_grid]
 #'
 #' @return
 #' @export
@@ -34,7 +35,10 @@ plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.2) {
 #'
 #' @examples
 pc_plot <- function(PC, PC_ref = PC[0, ],
-                    nfacet = 9, color_var = NA, legend_ratio = 0.2, color = "black") {
+                    nfacet = 9, color_var = I("black"),
+                    color_ref = "red",
+                    legend_ratio = 0.2,
+                    ...) {
 
   print(plot_grid2(
     plotlist = lapply(tail(seq_len(ncol(PC) - 1L), nfacet), function(offset) {
@@ -45,16 +49,17 @@ pc_plot <- function(PC, PC_ref = PC[0, ],
         geom_point(aes(PC[, pc_num[1]], PC[, pc_num[2]],
                        color = color_var)) +
         geom_point(aes(PC_ref[, pc_num[1]], PC_ref[, pc_num[2]]),
-                   color = color, size = 3, pch = 3, stroke = 2) +
+                   color = color_ref, size = 3, pch = 3, stroke = 2) +
         ggrepel::geom_text_repel(aes(PC_ref[, pc_num[1]], PC_ref[, pc_num[2]],
                                      label = seq_len(nrow(PC_ref))),
-                                 color = color, min.segment.length = 0) +
+                                 color = color_ref, min.segment.length = 0) +
         guides(color = guide_legend(ncol = 1)) +
         labs(x = paste0("PC", pc_num[1]), y = paste0("PC", pc_num[2]))
 
       `if`(is.numeric(color_var), p + scale_color_viridis_c(direction = -1), p)
     }),
-    legend_ratio = legend_ratio
+    legend_ratio = legend_ratio,
+    ...
   ))
 }
 

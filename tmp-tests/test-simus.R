@@ -51,10 +51,21 @@ m_loci <- 10000
 out <- draw_all_admix(
   admix_proportions = admix_proportions,
   tree_subpops = tree_subpops,
-  m_loci = m_loci
+  m_loci = m_loci,
+  want_p_subpops = TRUE,
+  maf_min = 0.01
 )
+
+library(bigsnpr)
+N_pop <- colSums(admix_proportions)
+list_df_af <- lapply(seq_along(N_pop), function(ic) {
+  data.frame(af = out$p_subpops[, ic], N = N_pop[ic])
+})
+all_fst <- snp_fst(list_df_af)
+hist(log(all_fst))
+
+
 # genotypes
-library(bigstatsr)
 X <- as_FBM(t(out$X))
 svd <- big_randomSVD(X, big_scale(), k = 15)
 plot(svd)
