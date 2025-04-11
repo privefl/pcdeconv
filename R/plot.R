@@ -116,7 +116,7 @@ pc_plot_mixtures <- function(Q, rank_in_group,
     theme(legend.position = "none") +
     facet_wrap(~ .GRP, nrow = 9, scales = "free_x") +
     labs(x = "Individual # (ordered by main component of group)",
-         y = "Ancestry proportion", color = "Ancestry", fill = "Ancestry")
+         y = "Admixture proportion", color = "Reference", fill = "Reference")
 }
 
 ################################################################################

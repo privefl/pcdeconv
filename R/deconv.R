@@ -70,9 +70,9 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' all_PC_ref_conv <- pc_deconv(PC, m_exponent = 10)
 #' plot(PC, pch = 20, col = "green")
 #' points(PC_ref_cheat, col = "orange", pch = 3, lwd = 2)
-#' points(PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
-#' points(PC_ref_conv[[4]], col = "red", pch = 5, lwd = 2)
-#' points(PC_ref_conv[[5]], col = "blue", pch = 6, lwd = 2)
+#' points(all_PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
+#' points(all_PC_ref_conv[[4]], col = "red",    pch = 5, lwd = 2)
+#' points(all_PC_ref_conv[[5]], col = "blue",   pch = 6, lwd = 2)
 pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
                       ind_plot = integer(0L), ncores = 1, ...) {
 
@@ -83,15 +83,11 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   PC0 <- if (use_varimax) varimax(PC, normalize = FALSE)$loadings[] else PC
 
   all_res <- list()
-
-  first_axe <- PC0[, 1]
-  ind_ref1 <- which.max(abs(first_axe))
-  ind_ref2 <- which.max(abs(first_axe - first_axe[ind_ref1]))
-  W <- matrix(0, nrow(PC0), 2)
-  W[ind_ref1, 1] <- 1
-  W[ind_ref2, 2] <- 1
-
   bigparallelr::register_parallel(ncores)
+
+  W <- pc_deconv_withstart(PC = PC0[, 1, drop = FALSE],
+                           PC_ref_init = as.matrix(range(PC0[, 1])),
+                           m_exponent = m_exponent, ...)
 
   for (K in 2:ncol(PC0)) {
 
@@ -103,7 +99,7 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
     dist <- abs(all_diff[, K])
     PC_ref <- rbind(PC_ref, PC[which.max(dist), ])
     if (length(ind_plot) > 0)
-      pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot], color = "red")
+      pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot])
 
     W <- pc_deconv_withstart(PC = PC, PC_ref_init = PC_ref,
                              m_exponent = m_exponent, ...)

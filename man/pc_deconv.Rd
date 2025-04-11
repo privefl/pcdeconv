@@ -49,9 +49,9 @@ PC_ref_cheat <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
 all_PC_ref_conv <- pc_deconv(PC, m_exponent = 10)
 plot(PC, pch = 20, col = "green")
 points(PC_ref_cheat, col = "orange", pch = 3, lwd = 2)
-points(PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
-points(PC_ref_conv[[4]], col = "red", pch = 5, lwd = 2)
-points(PC_ref_conv[[5]], col = "blue", pch = 6, lwd = 2)
+points(all_PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
+points(all_PC_ref_conv[[4]], col = "red",    pch = 5, lwd = 2)
+points(all_PC_ref_conv[[5]], col = "blue",   pch = 6, lwd = 2)
 }
 \seealso{
 \link{pc_deconv_withstart}
