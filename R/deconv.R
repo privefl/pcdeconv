@@ -107,6 +107,10 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
     all_res[[nrow(PC_ref)]] <- crossprod(W, PC0.0)
   }
 
+  if (length(ind_plot) > 0)
+    pc_plot(PC0.0[ind_plot, ], crossprod(W, PC0.0),
+            nfacet = K, legend_ratio = 0)
+
   all_res
 }
 
