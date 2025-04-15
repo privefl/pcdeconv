@@ -26,8 +26,8 @@ globalVariables("i")
 #'
 #' @import foreach
 #' @details
-#' A `foreach` loop is used internally, which will use parallelism if you
-#' registered a parallel backend with e.g. `doParallel::registerDoParallel`.
+#' A `future.apply` loop is used internally, which will use parallelism if you
+#' registered a parallel backend with e.g. `future::plan`.
 #'
 #'
 #' @examples
@@ -53,10 +53,8 @@ pc_mixtures <- function(PC, PC_ref,
   stopifnot(cp_X_pd$converged)
   Dmat <- cp_X_pd$mat
 
-  if (!getDoParRegistered()) registerDoSEQ()
-
   # solve a QP for each individual PC
-  res <- foreach(i = 1:nrow(Y), .combine = "rbind") %dopar% {
+  res <- do.call("rbind", future.apply::future_lapply(1:nrow(Y), function(i) {
 
     Y_i <- Y[i, ]
     dvec <- drop(X %*% Y_i)
@@ -98,7 +96,7 @@ pc_mixtures <- function(PC, PC_ref,
     sol0[ind] <- sol
 
     sol0
-  }
+  }))
 
   rownames(res) <- rownames(PC)
   colnames(res) <- rownames(PC_ref)

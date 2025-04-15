@@ -14,6 +14,8 @@ Imports:
     dplyr,
     quadprog,
     foreach,
+    future,
+    future.apply,
     ggplot2,
     ggrepel,
     Matrix,

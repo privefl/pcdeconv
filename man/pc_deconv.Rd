@@ -9,7 +9,7 @@ pc_deconv(
   m_exponent,
   use_varimax = TRUE,
   ind_plot = integer(0L),
-  ncores = 1,
+  ncores = NULL,
   ...
 )
 }

@@ -40,8 +40,8 @@ A matrix of mixture coefficients (N x L).
 Mixture coefficients
 }
 \details{
-A \code{foreach} loop is used internally, which will use parallelism if you
-registered a parallel backend with e.g. \code{doParallel::registerDoParallel}.
+A \code{future.apply} loop is used internally, which will use parallelism if you
+registered a parallel backend with e.g. \code{future::plan}.
 }
 \examples{
 PC <- prcomp(iris[1:4])$x

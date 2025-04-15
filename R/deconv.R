@@ -74,7 +74,7 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' points(all_PC_ref_conv[[4]], col = "red",    pch = 5, lwd = 2)
 #' points(all_PC_ref_conv[[5]], col = "blue",   pch = 6, lwd = 2)
 pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
-                      ind_plot = integer(0L), ncores = 1, ...) {
+                      ind_plot = integer(0L), ncores = NULL, ...) {
 
   stopifnot(ncol(PC) >= 2)
   stopifnot(ncol(PC) <= 100)
@@ -82,8 +82,12 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   PC0.0 <- PC
   PC0 <- if (use_varimax) varimax(PC, normalize = FALSE)$loadings[] else PC
 
+  if (!is.null(ncores)) {
+    future::plan("multisession", workers = ncores)
+    on.exit(future::plan("sequential"), add = TRUE)
+  }
+
   all_res <- list()
-  bigparallelr::register_parallel(ncores)
 
   W <- pc_deconv_withstart(PC = PC0[, 1, drop = FALSE],
                            PC_ref_init = as.matrix(range(PC0[, 1])),
