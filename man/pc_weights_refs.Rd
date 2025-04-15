@@ -18,7 +18,7 @@ Default is \code{0.6}.}
 }
 \value{
 Matrix \code{W} of weights (N x L) to be used to compute reference
-positions in PCs as \code{PC_ref <- crossprod(W, PC)}.
+positions in PCs as \code{PC_ref <- pc_refs(PC, W)}.
 }
 \description{
 Weights to compute references
@@ -30,7 +30,7 @@ pc_plot(PC, PC_ref, color_var = iris$Species)
 
 Q <- pc_mixtures(PC, PC_ref)
 W <- pc_weights_refs(Q, m_exponent = 10)
-PC_ref2 <- crossprod(W, PC)
+PC_ref2 <- pc_refs(PC, W)
 pc_plot(PC, PC_ref2, color_var = iris$Species)
 
 }

@@ -1,6 +1,6 @@
 ################################################################################
 
-plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.2) {
+plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.15) {
 
   main_grid <- plot_grid(plotlist = lapply(plotlist, function(p) {
     p + theme(legend.position = "none") + ggtitle(NULL)

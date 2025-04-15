@@ -10,7 +10,7 @@
 #'   Default is `0.6`.
 #'
 #' @return Matrix `W` of weights (N x L) to be used to compute reference
-#'   positions in PCs as `PC_ref <- crossprod(W, PC)`.
+#'   positions in PCs as `PC_ref <- pc_refs(PC, W)`.
 #' @export
 #'
 #' @examples
@@ -20,16 +20,30 @@
 #'
 #' Q <- pc_mixtures(PC, PC_ref)
 #' W <- pc_weights_refs(Q, m_exponent = 10)
-#' PC_ref2 <- crossprod(W, PC)
+#' PC_ref2 <- pc_refs(PC, W)
 #' pc_plot(PC, PC_ref2, color_var = iris$Species)
 #'
 pc_weights_refs <- function(Q, m_exponent, thr_coef = 0.6) {
 
-  Q2 <- matrix(0, nrow(Q), ncol(Q))
-  keep <- which(Q >= thr_coef, arr.ind = TRUE)
-  Q2[keep] <- Q[keep]^m_exponent
+  Q2 <- Matrix::drop0(Q, thr_coef)^m_exponent
 
-  sweep(Q2, 2, colSums(Q2), '/')
+  ## scale columns by their sums
+  Q2 %*% Matrix::Diagonal(x = 1 / Matrix::colSums(Q2))
+}
+
+################################################################################
+
+#' Title
+#'
+#' @param PC
+#' @param W
+#'
+#' @return
+#' @export
+#'
+#' @examples
+pc_refs <- function(PC, W) {
+  as.matrix(Matrix::crossprod(W, PC))
 }
 
 ################################################################################

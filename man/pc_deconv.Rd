@@ -36,8 +36,8 @@ coefficients to stop updating these weights. Default is \code{1e-4}.}
 \item{max_iter}{Maximum number of iterations. Default is \code{100}.}
 }
 \value{
-A list of several \code{PC_ref}, after convergence of the deconvolution
-\eqn{PC \approx Q \cdot PC_\text{ref}}, for all subsets of \code{PC} using from
+A list of several \code{W}, after convergence of the deconvolution
+\eqn{PC \approx Q \cdot W^T \cdot PC}, for all subsets of \code{PC} using from
 \code{2} to \code{ncol(PC)} columns.
 }
 \description{

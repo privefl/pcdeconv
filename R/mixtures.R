@@ -24,7 +24,6 @@ globalVariables("i")
 #' @return A matrix of mixture coefficients (N x L).
 #' @export
 #'
-#' @import foreach
 #' @details
 #' A `future.apply` loop is used internally, which will use parallelism if you
 #' registered a parallel backend with e.g. `future::plan`.
@@ -102,3 +101,5 @@ pc_mixtures <- function(PC, PC_ref,
   colnames(res) <- rownames(PC_ref)
   res
 }
+
+################################################################################

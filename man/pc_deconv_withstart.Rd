@@ -57,7 +57,7 @@ PC_ref_init <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
 pc_plot(PC, PC_ref_init, color_var = iris$Species)
 
 W <- pc_deconv_withstart(PC, PC_ref_init, m_exponent = 5)
-PC_ref_conv <- crossprod(W, PC)
+PC_ref_conv <- pc_refs(PC, W)
 pc_plot(PC, PC_ref_conv, color_var = iris$Species)
 
 }

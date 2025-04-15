@@ -22,7 +22,7 @@
 #' pc_plot(PC, PC_ref_init, color_var = iris$Species)
 #'
 #' W <- pc_deconv_withstart(PC, PC_ref_init, m_exponent = 5)
-#' PC_ref_conv <- crossprod(W, PC)
+#' PC_ref_conv <- pc_refs(PC, W)
 #' pc_plot(PC, PC_ref_conv, color_var = iris$Species)
 #'
 pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
@@ -33,7 +33,7 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
   for (ic in seq_len(max_iter)) {
 
     W <- pc_weights_refs(Q, m_exponent = m_exponent, thr_coef = thr_coef)
-    PC_ref <- crossprod(W, PC)
+    PC_ref <- pc_refs(PC, W)
 
     Q_prev <- Q
     Q <- pc_mixtures(PC = PC, PC_ref = PC_ref, ...)
@@ -57,8 +57,8 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #'   `bigparallelr::nb_cores()`.
 #' @inheritDotParams pc_deconv_withstart thr_coef conv_diff max_iter
 #'
-#' @return A list of several `PC_ref`, after convergence of the deconvolution
-#'   \eqn{PC \approx Q \cdot PC_\text{ref}}, for all subsets of `PC` using from
+#' @return A list of several `W`, after convergence of the deconvolution
+#'   \eqn{PC \approx Q \cdot W^T \cdot PC}, for all subsets of `PC` using from
 #'   `2` to `ncol(PC)` columns.
 #' @export
 #'
@@ -79,8 +79,7 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   stopifnot(ncol(PC) >= 2)
   stopifnot(ncol(PC) <= 100)
 
-  PC0.0 <- PC
-  PC0 <- if (use_varimax) varimax(PC, normalize = FALSE)$loadings[] else PC
+  PC0 <- if (use_varimax) bigutilsr::varimax2(PC) else PC
 
   if (!is.null(ncores)) {
     future::plan("multisession", workers = ncores)
@@ -96,7 +95,7 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   for (K in 2:ncol(PC0)) {
 
     PC <- PC0[, 1:K]
-    PC_ref <- crossprod(W, PC)
+    PC_ref <- pc_refs(PC, W)
     Q0 <- pc_mixtures(PC, PC_ref, max_coef = 2)
 
     all_diff <- PC - Q0 %*% PC_ref
@@ -108,12 +107,11 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
     W <- pc_deconv_withstart(PC = PC, PC_ref_init = PC_ref,
                              m_exponent = m_exponent, ...)
 
-    all_res[[nrow(PC_ref)]] <- crossprod(W, PC0.0)
+    all_res[[ncol(W)]] <- W
   }
 
   if (length(ind_plot) > 0)
-    pc_plot(PC0.0[ind_plot, ], crossprod(W, PC0.0),
-            nfacet = K, legend_ratio = 0)
+    pc_plot(PC0[ind_plot, ], pc_refs(PC0, W), nfacet = K, legend_ratio = 0)
 
   all_res
 }
