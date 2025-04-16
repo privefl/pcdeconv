@@ -103,13 +103,14 @@ pc_plot_mixtures <- function(Q, rank_in_group,
                              colors = c("#64cb64", "#e7be28", "#b94a7b", "#6687d2",
                                         "#add042", "#cc4eb7", "#e6831f", "#8d5edf",
                                         "#5ccda0", "#613d9a", "#c79335", "#46d0e5",
-                                        "#d14f29", "#60924e", "#a45441")) {
+                                        "#d14f29", "#60924e", "#a45441"),
+                             levels = NULL) {
 
   df <- cbind.data.frame(rank_in_group, Q) %>%
     tidyr::pivot_longer(-c(.GRP, .ID))
 
-  if (!is.null(names(colors)))  # if I want to choose the order of bars
-    df$value <- factor(df$value, levels = names(colors))
+  if (!is.null(levels))  # if I want to choose the order of bars
+    df$value <- factor(df$value, levels = levels)
 
   ggplot(df) +
     geom_col(aes(.ID, value, color = name, fill = name)) +
