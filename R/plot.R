@@ -73,7 +73,8 @@ pc_plot <- function(PC, PC_ref = PC[0, ],
 #' @return
 #' @export
 #'
-#' @examples
+#' @rdname pc_plot_mixtures
+#'
 rank_in_group <- function(Q, group) {
 
   main_comp_by_group <- by(Q, group, function(x) which.max(colSums(x)))
@@ -90,7 +91,7 @@ rank_in_group <- function(Q, group) {
 #' Title
 #'
 #' @param Q
-#' @param group
+#' @param rank_in_group
 #' @param colors
 #'
 #' @return
@@ -99,18 +100,33 @@ rank_in_group <- function(Q, group) {
 #' @import dplyr ggplot2
 #'
 #' @examples
+#' PC <- prcomp(iris[1:4])$x
+#' PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
+#' Q <- pc_mixtures(PC, PC_ref)
+#'
+#' rank_in_grp <- rank_in_group(Q, iris$Species)
+#' pc_plot_mixtures(Q, rank_in_grp)
+#'
+#' colors <- c("#5ccda0", "#613d9a", "#c79335")
+#' colnames(Q) <- colors
+#' pc_plot_mixtures(Q, rank_in_grp)
+#' pc_plot_mixtures(Q, rank_in_grp, colors = rev(colors))
 pc_plot_mixtures <- function(Q, rank_in_group,
                              colors = c("#64cb64", "#e7be28", "#b94a7b", "#6687d2",
                                         "#add042", "#cc4eb7", "#e6831f", "#8d5edf",
                                         "#5ccda0", "#613d9a", "#c79335", "#46d0e5",
-                                        "#d14f29", "#60924e", "#a45441"),
-                             levels = NULL) {
+                                        "#d14f29", "#60924e", "#a45441")) {
+
+  if (ncol(Q) > length(colors)) stop("Not enough colors provided.")
 
   df <- cbind.data.frame(rank_in_group, Q) %>%
     tidyr::pivot_longer(-c(.GRP, .ID))
 
-  if (!is.null(levels))  # if I want to choose the order of bars
-    df$value <- factor(df$value, levels = levels)
+  cn <- colnames(Q)
+  if (!is.null(cn) && all(cn %in% colors)) {
+    names(colors) <- colors
+    df$name <- factor(df$name, levels = colors)
+  }
 
   ggplot(df) +
     geom_col(aes(.ID, value, color = name, fill = name)) +
