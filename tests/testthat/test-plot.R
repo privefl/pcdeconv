@@ -12,7 +12,7 @@ test_that("Function pc_plot_mixtures works", {
 
   rank_in_grp <- rank_in_group(Q, iris$Species)
   p1 <- pc_plot_mixtures(Q, rank_in_grp)
-  colors1 <- c("#64cb64", "#e7be28", "#b94a7b")
+  colors1 <- c("#64cb64", "#e7be28", "#d14f29")
   expect_identical(ggplot2::ggplot_build(p1)$data[[1]]$fill, rep(colors1, 150))
 
   colors2 <- c("#5ccda0", "#613d9a", "#c79335")
