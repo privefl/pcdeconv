@@ -2,21 +2,37 @@
 % Please edit documentation in R/plot.R
 \name{pc_plot}
 \alias{pc_plot}
-\title{Title}
+\title{Plot PC scores}
 \usage{
 pc_plot(
   PC,
   PC_ref = PC[0, ],
-  nfacet = 9,
+  which_pc_pairs = make_pairs(1:ncol(PC)),
   color_var = I("black"),
-  color_ref = "red",
-  legend_ratio = 0.2,
-  ...
+  color_ref = "red"
 )
 }
 \arguments{
-\item{...}{Further parameters to pass to \link[cowplot:plot_grid]{cowplot::plot_grid}}
+\item{PC}{Matrix of PC scores, N x K.}
+
+\item{PC_ref}{Matrix of reference PC scores, L x K, to add as crosses.}
+
+\item{which_pc_pairs}{Which pairs of PCs (columns) to plot?}
+
+\item{color_var}{Vector to color \code{PC} from; can be any variable.}
+
+\item{color_ref}{Color used for \code{PC_ref}. Default is red.}
+}
+\value{
+A ggplot object.
 }
 \description{
-Title
+Plot PC scores
+}
+\examples{
+PC <- prcomp(iris[1:4])$x
+PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
+pc_plot(PC, PC_ref)
+pc_plot(PC, PC_ref, color_var = iris$Species, which_pc_pairs = make_pairs(1:4, "all"))
+pc_plot(PC, PC_ref, color_var = iris$Species) + facet_wrap(~ facet, nrow = 2, scales = "free")
 }

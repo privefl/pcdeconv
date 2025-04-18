@@ -1,66 +1,88 @@
 ################################################################################
 
-plot_grid2 <- function(plotlist, ..., title_ratio = 0, legend_ratio = 0.15) {
+#' Make pairs of PCs to plot
+#'
+#' @param ind Indices of PCs to plot.
+#' @param how Which pairs to make? For `1:4`, "step1" makes 1-2, 2-3, 3-4;
+#'   "step2" makes 1-2, 3-4, and "all" makes 1-2, 2-3, 3-4, 1-4, 2-4, 3-4.
+#'
+#' @return A two-column matrix of pairs of indices to plot.
+#' @export
+#'
+#' @examples
+#' make_pairs(1:4)
+#' make_pairs(1:4, how = "step2")
+#' make_pairs(1:5, how = "step2")
+#' make_pairs(1:4, how = "all")
+make_pairs <- function(ind, how = c("step1", "step2", "all")) {
 
-  main_grid <- plot_grid(plotlist = lapply(plotlist, function(p) {
-    p + theme(legend.position = "none") + ggtitle(NULL)
-  }), ...)
-
-  title <- cowplot::get_title(plotlist[[1]])
-  legend <- suppressWarnings(cowplot::get_legend(plotlist[[1]]))
-
-  plot_grid(
-    title,     ggplot() + theme_minimal(),
-    main_grid, legend,
-    rel_heights = c(title_ratio, 1), ncol = 2,
-    rel_widths = c(1, legend_ratio), nrow = 2
-  )
+  how <- match.arg(how)
+  if (how == "step1") {
+    cbind(head(ind, -1), tail(ind, -1))
+  } else if (how == "step2") {
+    cbind(head(ind, -1), tail(ind, -1))[c(TRUE, FALSE), , drop = FALSE]
+  } else if (how == "all") {
+    expand.grid(ind, ind) %>%
+      filter(Var1 < Var2) %>%
+      as.matrix() %>%
+      unname()
+  }
 }
 
 ################################################################################
 
-#' Title
+#' Plot PC scores
 #'
-#' @param PC
-#' @param PC_ref
-#' @param nfacet
-#' @param color_var
-#' @param ... Further parameters to pass to [cowplot::plot_grid]
+#' @param PC Matrix of PC scores, N x K.
+#' @param PC_ref Matrix of reference PC scores, L x K, to add as crosses.
+#' @param which_pc_pairs Which pairs of PCs (columns) to plot?
+#' @param color_var Vector to color `PC` from; can be any variable.
+#' @param color_ref Color used for `PC_ref`. Default is red.
 #'
-#' @return
+#' @return A ggplot object.
 #' @export
 #'
 #' @import ggplot2
-#' @importFrom cowplot plot_grid
 #'
 #' @examples
+#' PC <- prcomp(iris[1:4])$x
+#' PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
+#' pc_plot(PC, PC_ref)
+#' pc_plot(PC, PC_ref, color_var = iris$Species, which_pc_pairs = make_pairs(1:4, "all"))
+#' pc_plot(PC, PC_ref, color_var = iris$Species) + facet_wrap(~ facet, nrow = 2, scales = "free")
 pc_plot <- function(PC, PC_ref = PC[0, ],
-                    nfacet = 9, color_var = I("black"),
-                    color_ref = "red",
-                    legend_ratio = 0.2,
-                    ...) {
+                    which_pc_pairs = make_pairs(1:ncol(PC)),
+                    color_var = I("black"),
+                    color_ref = "red") {
 
-  print(plot_grid2(
-    plotlist = lapply(tail(seq_len(ncol(PC) - 1L), nfacet), function(offset) {
-      pc_num <- offset + 0:1
-      p <- ggplot() + theme_bw() +
-        scale_x_continuous(expand = expansion(mult = 0.1)) +
-        scale_y_continuous(expand = expansion(mult = 0.1)) +
-        geom_point(aes(PC[, pc_num[1]], PC[, pc_num[2]],
-                       color = color_var)) +
-        geom_point(aes(PC_ref[, pc_num[1]], PC_ref[, pc_num[2]]),
-                   color = color_ref, size = 3, pch = 3, stroke = 2) +
-        ggrepel::geom_text_repel(aes(PC_ref[, pc_num[1]], PC_ref[, pc_num[2]],
-                                     label = seq_len(nrow(PC_ref))),
-                                 color = color_ref, min.segment.length = 0) +
-        guides(color = guide_legend(ncol = 1)) +
-        labs(x = paste0("PC", pc_num[1]), y = paste0("PC", pc_num[2]))
+  make_df <- function(PC, color = NULL) {
 
-      `if`(is.numeric(color_var), p + scale_color_viridis_c(direction = -1), p)
-    }),
-    legend_ratio = legend_ratio,
-    ...
-  ))
+    all_df <- apply(which_pc_pairs, 1, function(pcs) {
+      k1 <- pcs[1]
+      k2 <- pcs[2]
+      tibble(x = PC[, k1], y = PC[, k2], color = color,
+             facet = paste0("PC", k2, " vs ", "PC", k1)) %>%
+        mutate(label = row_number())
+    })
+
+    df <- do.call("rbind", all_df)
+    mutate(df, facet = factor(facet, levels = unique(facet)))
+  }
+
+  df_ref <- make_df(PC_ref)
+
+  p <- ggplot(mapping = aes(x, y, color = color, label = label)) + theme_bw() +
+    facet_wrap(~ facet, scales = "free") +
+    geom_point(data = make_df(PC, color_var)) +
+    geom_point(data = df_ref, color = color_ref, size = 3, pch = 3, stroke = 2) +
+    ggrepel::geom_text_repel(data = df_ref, color = color_ref, min.segment.length = 0) +
+    guides(color = guide_legend(ncol = 1)) +
+    labs(x = NULL, y = NULL) +
+    theme(panel.spacing = unit(1, "lines")) +
+    scale_x_continuous(expand = expansion(mult = 0.1)) +
+    scale_y_continuous(expand = expansion(mult = 0.1))
+
+  `if`(is.numeric(color_var), p + scale_color_viridis_c(direction = -1), p)
 }
 
 ################################################################################
