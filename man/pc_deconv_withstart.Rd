@@ -10,7 +10,7 @@ pc_deconv_withstart(
   m_exponent,
   thr_coef = 0.6,
   conv_diff = 1e-04,
-  max_iter = 100,
+  max_iter = 200,
   ...
 )
 }
@@ -27,7 +27,7 @@ Default is \code{0.6}.}
 \item{conv_diff}{Maximum difference between consecutive values of mixture
 coefficients to stop updating these weights. Default is \code{1e-4}.}
 
-\item{max_iter}{Maximum number of iterations. Default is \code{100}.}
+\item{max_iter}{Maximum number of iterations. Default is \code{200}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=pc_mixtures]{pc_mixtures}}

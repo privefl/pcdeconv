@@ -26,14 +26,12 @@ Default is \code{TRUE}. It generally helps with the warm starts (initializations
 \item{...}{
   Arguments passed on to \code{\link[=pc_deconv_withstart]{pc_deconv_withstart}}
   \describe{
+    \item{\code{conv_diff}}{Maximum difference between consecutive values of mixture
+coefficients to stop updating these weights. Default is \code{1e-4}.}
+    \item{\code{max_iter}}{Maximum number of iterations. Default is \code{200}.}
     \item{\code{thr_coef}}{Threshold under which coefficients of \code{Q} are not used.
 Default is \code{0.6}.}
   }}
-
-\item{conv_diff}{Maximum difference between consecutive values of mixture
-coefficients to stop updating these weights. Default is \code{1e-4}.}
-
-\item{max_iter}{Maximum number of iterations. Default is \code{100}.}
 }
 \value{
 A list of several \code{W}, after convergence of the deconvolution
@@ -47,11 +45,10 @@ Alternating deconvolution with incremental building.
 PC <- prcomp(iris[1:4])$x
 PC_ref_cheat <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
 all_PC_ref_conv <- pc_deconv(PC, m_exponent = 10)
-plot(PC, pch = 20, col = "green")
+plot(PC, pch = 20, cex = 1)
 points(PC_ref_cheat, col = "orange", pch = 3, lwd = 2)
-points(all_PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
-points(all_PC_ref_conv[[4]], col = "red",    pch = 5, lwd = 2)
-points(all_PC_ref_conv[[5]], col = "blue",   pch = 6, lwd = 2)
+points(pc_refs(PC, all_PC_ref_conv[[3]]), col = "red", pch = 4, lwd = 2)
+points(pc_refs(PC, all_PC_ref_conv[[4]]), col = "green", pch = 5, lwd = 2)
 }
 \seealso{
 \link{pc_deconv_withstart}

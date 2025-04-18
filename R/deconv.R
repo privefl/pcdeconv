@@ -7,7 +7,7 @@
 #'   is the number of references) to be used as *starting values*.
 #' @param conv_diff Maximum difference between consecutive values of mixture
 #'   coefficients to stop updating these weights. Default is `1e-4`.
-#' @param max_iter Maximum number of iterations. Default is `100`.
+#' @param max_iter Maximum number of iterations. Default is `200`.
 #' @inheritDotParams pc_mixtures -PC -PC_ref
 #'
 #' @return `W`, after convergence of the deconvolution
@@ -26,7 +26,7 @@
 #' pc_plot(PC, PC_ref_conv, color_var = iris$Species)
 #'
 pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
-                                conv_diff = 1e-4, max_iter = 100, ...) {
+                                conv_diff = 1e-4, max_iter = 200, ...) {
 
   Q <- pc_mixtures(PC = PC, PC_ref = PC_ref_init, ...)
 
@@ -50,9 +50,6 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' @inheritParams pc_weights_refs
 #' @param use_varimax Whether to transform PCs using a varimax rotation?
 #'   Default is `TRUE`. It generally helps with the warm starts (initializations).
-#' @param conv_diff Maximum difference between consecutive values of mixture
-#'   coefficients to stop updating these weights. Default is `1e-4`.
-#' @param max_iter Maximum number of iterations. Default is `100`.
 #' @param ncores Number of cores to use. Default is `1`. You can use e.g.
 #'   `bigparallelr::nb_cores()`.
 #' @inheritDotParams pc_deconv_withstart thr_coef conv_diff max_iter
@@ -68,18 +65,18 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' PC <- prcomp(iris[1:4])$x
 #' PC_ref_cheat <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
 #' all_PC_ref_conv <- pc_deconv(PC, m_exponent = 10)
-#' plot(PC, pch = 20, col = "green")
+#' plot(PC, pch = 20, cex = 1)
 #' points(PC_ref_cheat, col = "orange", pch = 3, lwd = 2)
-#' points(all_PC_ref_conv[[3]], col = "purple", pch = 4, lwd = 2)
-#' points(all_PC_ref_conv[[4]], col = "red",    pch = 5, lwd = 2)
-#' points(all_PC_ref_conv[[5]], col = "blue",   pch = 6, lwd = 2)
+#' points(pc_refs(PC, all_PC_ref_conv[[3]]), col = "red", pch = 4, lwd = 2)
+#' points(pc_refs(PC, all_PC_ref_conv[[4]]), col = "green", pch = 5, lwd = 2)
 pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
                       ind_plot = integer(0L), ncores = NULL, ...) {
 
   stopifnot(ncol(PC) >= 2)
   stopifnot(ncol(PC) <= 100)
 
-  PC0 <- if (use_varimax) bigutilsr::varimax2(PC) else PC
+  PC0 <- PC
+  PC0_for_init <- if (use_varimax) bigutilsr::varimax2(PC) else PC
 
   if (!is.null(ncores)) {
     future::plan("multisession", workers = ncores)
@@ -95,14 +92,18 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   for (K in 2:ncol(PC0)) {
 
     PC <- PC0[, 1:K]
+    PC_for_init <- PC0_for_init[, 1:K]
+
     PC_ref <- pc_refs(PC, W)
     Q0 <- pc_mixtures(PC, PC_ref, max_coef = 2)
 
-    all_diff <- PC - Q0 %*% PC_ref
+    all_diff <- PC_for_init - Q0 %*% pc_refs(PC_for_init, W)
     dist <- abs(all_diff[, K])
     PC_ref <- rbind(PC_ref, PC[which.max(dist), ])
     if (length(ind_plot) > 0)
-      pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot])
+      pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot],
+              which_pc_pairs = make_pairs(tail(1:K, 5))) +
+      theme(legend.position = "none")
 
     W <- pc_deconv_withstart(PC = PC, PC_ref_init = PC_ref,
                              m_exponent = m_exponent, ...)
@@ -111,7 +112,7 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   }
 
   if (length(ind_plot) > 0)
-    pc_plot(PC0[ind_plot, ], pc_refs(PC0, W), nfacet = K, legend_ratio = 0)
+    pc_plot(PC0[ind_plot, ], pc_refs(PC0, W))
 
   all_res
 }
