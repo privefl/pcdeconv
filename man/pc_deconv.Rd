@@ -14,6 +14,8 @@ pc_deconv(
 )
 }
 \arguments{
+\item{PC}{Matrix of PC scores, N x K.}
+
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
 A value between 3 and 30 is usually appropriate to priotize larger Q values.}
 
@@ -30,7 +32,7 @@ Default is \code{TRUE}. It generally helps with the warm starts (initializations
 coefficients to stop updating these weights. Default is \code{1e-4}.}
     \item{\code{max_iter}}{Maximum number of iterations. Default is \code{200}.}
     \item{\code{thr_coef}}{Threshold under which coefficients of \code{Q} are not used.
-Default is \code{0.6}.}
+Default is 0.6.}
   }}
 }
 \value{

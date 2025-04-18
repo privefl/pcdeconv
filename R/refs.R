@@ -3,13 +3,13 @@
 #' Weights to compute references
 #'
 #' @param Q Matrix of mixture coefficients (L x K), typically the output
-#'   of [pc_mixtures].
+#'   of [pc_mixtures()].
 #' @param m_exponent Exponent to be applied to the coefficients of `Q`.
 #'   A value between 3 and 30 is usually appropriate to priotize larger Q values.
 #' @param thr_coef Threshold under which coefficients of `Q` are not used.
-#'   Default is `0.6`.
+#'   Default is 0.6.
 #'
-#' @return Matrix `W` of weights (N x L) to be used to compute reference
+#' @return Sparse matrix `W` of weights (N x L) to be used to compute reference
 #'   positions in PCs as `PC_ref <- pc_refs(PC, W)`.
 #' @export
 #'
@@ -33,15 +33,13 @@ pc_weights_refs <- function(Q, m_exponent, thr_coef = 0.6) {
 
 ################################################################################
 
-#' Title
+#' @param PC Matrix of PC scores, N x K.
+#' @param W The output of [pc_weights_refs()].
 #'
-#' @param PC
-#' @param W
-#'
-#' @return
 #' @export
 #'
-#' @examples
+#' @rdname pc_weights_refs
+#'
 pc_refs <- function(PC, W) {
   as.matrix(Matrix::crossprod(W, PC))
 }

@@ -2,22 +2,29 @@
 % Please edit documentation in R/refs.R
 \name{pc_weights_refs}
 \alias{pc_weights_refs}
+\alias{pc_refs}
 \title{Weights to compute references}
 \usage{
 pc_weights_refs(Q, m_exponent, thr_coef = 0.6)
+
+pc_refs(PC, W)
 }
 \arguments{
 \item{Q}{Matrix of mixture coefficients (L x K), typically the output
-of \link{pc_mixtures}.}
+of \code{\link[=pc_mixtures]{pc_mixtures()}}.}
 
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
 A value between 3 and 30 is usually appropriate to priotize larger Q values.}
 
 \item{thr_coef}{Threshold under which coefficients of \code{Q} are not used.
-Default is \code{0.6}.}
+Default is 0.6.}
+
+\item{PC}{Matrix of PC scores, N x K.}
+
+\item{W}{The output of \code{\link[=pc_weights_refs]{pc_weights_refs()}}.}
 }
 \value{
-Matrix \code{W} of weights (N x L) to be used to compute reference
+Sparse matrix \code{W} of weights (N x L) to be used to compute reference
 positions in PCs as \code{PC_ref <- pc_refs(PC, W)}.
 }
 \description{

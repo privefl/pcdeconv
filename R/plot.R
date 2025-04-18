@@ -1,13 +1,12 @@
 ################################################################################
 
-#' Make pairs of PCs to plot
-#'
 #' @param ind Indices of PCs to plot.
 #' @param how Which pairs to make? For `1:4`, "step1" makes 1-2, 2-3, 3-4;
-#'   "step2" makes 1-2, 3-4, and "all" makes 1-2, 2-3, 3-4, 1-4, 2-4, 3-4.
+#'   "step2" makes 1-2, 3-4, and "all" makes 1-2, 1-3, 2-3, 1-4, 2-4, 3-4.
 #'
-#' @return A two-column matrix of pairs of indices to plot.
 #' @export
+#'
+#' @rdname pc_plot
 #'
 #' @examples
 #' make_pairs(1:4)
@@ -87,12 +86,8 @@ pc_plot <- function(PC, PC_ref = PC[0, ],
 
 ################################################################################
 
-#' Title
+#' @param group Vector of labels to use for facetting in [pc_plot_mixtures()].
 #'
-#' @param Q
-#' @param group
-#'
-#' @return
 #' @export
 #'
 #' @rdname pc_plot_mixtures
@@ -110,13 +105,13 @@ rank_in_group <- function(Q, group) {
 
 ################################################################################
 
-#' Title
+#' Plot mixtures
 #'
-#' @param Q
-#' @param rank_in_group
+#' @inheritParams pc_weights_refs
+#' @param rank_in_group The output of [rank_in_group()].
 #' @param colors
 #'
-#' @return
+#' @return A ggplot object.
 #' @export
 #'
 #' @import dplyr ggplot2
@@ -133,6 +128,7 @@ rank_in_group <- function(Q, group) {
 #' colnames(Q) <- colors
 #' pc_plot_mixtures(Q, rank_in_grp)
 #' pc_plot_mixtures(Q, rank_in_grp, colors = rev(colors))
+#' pc_plot_mixtures(Q, rank_in_grp) + facet_wrap(~ .GRP, ncol = 1, scales = "free_x")
 pc_plot_mixtures <- function(Q, rank_in_group, colors = c(
   "#64cb64", "#e7be28", "#d14f29", "#6687d2", "#add042", "#cc4eb7",
   "#e6831f", "#c5b0d5", "#5ccda0", "#613d9a", "#c79335", "#46d0e5",

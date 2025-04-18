@@ -15,6 +15,8 @@ pc_deconv_withstart(
 )
 }
 \arguments{
+\item{PC}{Matrix of PC scores, N x K.}
+
 \item{PC_ref_init}{Matrix of reference positions in the PCs (L x K, where L
 is the number of references) to be used as \emph{starting values}.}
 
@@ -22,7 +24,7 @@ is the number of references) to be used as \emph{starting values}.}
 A value between 3 and 30 is usually appropriate to priotize larger Q values.}
 
 \item{thr_coef}{Threshold under which coefficients of \code{Q} are not used.
-Default is \code{0.6}.}
+Default is 0.6.}
 
 \item{conv_diff}{Maximum difference between consecutive values of mixture
 coefficients to stop updating these weights. Default is \code{1e-4}.}

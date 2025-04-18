@@ -3,7 +3,7 @@
 \name{rank_in_group}
 \alias{rank_in_group}
 \alias{pc_plot_mixtures}
-\title{Title}
+\title{Plot mixtures}
 \usage{
 rank_in_group(Q, group)
 
@@ -18,14 +18,20 @@ pc_plot_mixtures(
 )
 }
 \arguments{
-\item{group}{}
+\item{Q}{Matrix of mixture coefficients (L x K), typically the output
+of \code{\link[=pc_mixtures]{pc_mixtures()}}.}
+
+\item{group}{Vector of labels to use for facetting in \code{\link[=pc_plot_mixtures]{pc_plot_mixtures()}}.}
+
+\item{rank_in_group}{The output of \code{\link[=rank_in_group]{rank_in_group()}}.}
 
 \item{colors}{}
 }
+\value{
+A ggplot object.
+}
 \description{
-Title
-
-Title
+Plot mixtures
 }
 \examples{
 PC <- prcomp(iris[1:4])$x
@@ -39,4 +45,5 @@ colors <- c("#5ccda0", "#613d9a", "#c79335")
 colnames(Q) <- colors
 pc_plot_mixtures(Q, rank_in_grp)
 pc_plot_mixtures(Q, rank_in_grp, colors = rev(colors))
+pc_plot_mixtures(Q, rank_in_grp) + facet_wrap(~ .GRP, ncol = 1, scales = "free_x")
 }
