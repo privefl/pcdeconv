@@ -100,10 +100,12 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
     all_diff <- PC_for_init - Q0 %*% pc_refs(PC_for_init, W)
     dist <- abs(all_diff[, K])
     PC_ref <- rbind(PC_ref, PC[which.max(dist), ])
-    if (length(ind_plot) > 0)
-      pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot],
-              which_pc_pairs = make_pairs(tail(1:K, 5))) +
-      theme(legend.position = "none")
+    if (length(ind_plot) > 0) {
+      p <- pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot],
+                   which_pc_pairs = make_pairs(tail(1:K, 5))) +
+        theme(legend.position = "none")
+      print(p)
+    }
 
     W <- pc_deconv_withstart(PC = PC, PC_ref_init = PC_ref,
                              m_exponent = m_exponent, ...)
@@ -112,7 +114,7 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   }
 
   if (length(ind_plot) > 0)
-    pc_plot(PC0[ind_plot, ], pc_refs(PC0, W))
+    print(pc_plot(PC0[ind_plot, ], pc_refs(PC0, W)))
 
   all_res
 }

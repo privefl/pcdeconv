@@ -10,7 +10,7 @@ PC <- prcomp(iris[1:4])$x
 
 test_that("Function pc_deconv works", {
 
-  res0 <- structure(c(-2.66841214385524, 0.168732255810294, 2.59180406326464,
+  res0 <- structure(c(-2.66841214385524, 0.1-68732255810294, 2.59180406326464,
                       -0.183557893295006, 0.72863105712579, -0.425128450793,
                       -0.0154811314970848, 0.0686903664048225, 0.041606609455891,
                       0.00102550636110648, -0.0165881362678455, 0.00482042309807765),
@@ -18,15 +18,20 @@ test_that("Function pc_deconv works", {
 
   for (use_varimax in c(TRUE, FALSE)) {
     for (m_exponent in c(5, 10)) {
-      all_res <- pc_deconv(PC[, 1:3], m_exponent = m_exponent,
-                           use_varimax = use_varimax, ncores = 2)
-      res3 <- pc_deconv_withstart(PC[, 1:3], all_res[[3]], m_exponent = m_exponent)
+      all_res <- pc_deconv(PC[, 1:4], m_exponent = m_exponent,
+                           use_varimax = use_varimax,
+                           ind_plot = 1:nrow(PC), ncores = 2)
+      res3 <- pc_deconv_withstart(PC[, 1:2], pc_refs(PC[, 1:2], all_res[[3]]),
+                                  m_exponent = m_exponent)
+      expect_equal(res3, all_res[[3]], tolerance = 1e-3)
+      res4 <- pc_deconv_withstart(PC[, 1:3], pc_refs(PC[, 1:3], all_res[[4]]),
+                                  m_exponent = m_exponent)
+      expect_equal(res4, all_res[[4]], tolerance = 1e-3)
+      res5 <- pc_deconv_withstart(PC[, 1:4], pc_refs(PC[, 1:4], all_res[[5]]),
+                                  m_exponent = m_exponent)
+      expect_equal(res5, all_res[[5]], tolerance = 1e-3)
     }
   }
-
-
-  pc_plot(PC[, 1:2], all_res[[3]], color_var = iris$Species)
-  pc_plot(PC[, 1:3], all_res[[4]], color_var = iris$Species)
 })
 
 ################################################################################

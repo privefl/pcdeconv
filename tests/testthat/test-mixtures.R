@@ -11,8 +11,7 @@ PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
 
 test_that("Function pc_mixtures works", {
 
-  cl <- bigparallelr::makeCluster(2)
-  bigparallelr::registerDoParallel(cl)
+  future::plan("multisession", workers = 2)
 
   mix1 <- pc_mixtures(PC, PC_ref)
   expect_true(all(mix1 >= 0))
@@ -34,7 +33,7 @@ test_that("Function pc_mixtures works", {
   expect_true(all(rowSums(mix3) > (0.5 - 1e-8)))
   expect_false(any(rowSums(mix2 > 0) == 3))
 
-  bigparallelr::stopCluster(cl)
+  future::plan("sequential")
 })
 
 ################################################################################
