@@ -21,7 +21,7 @@ pc_deconv_withstart(
 is the number of references) to be used as \emph{starting values}.}
 
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
-A value between 3 and 30 is usually appropriate to priotize larger Q values.}
+A value between 3 and 30 is usually appropriate to prioritize larger Q values.}
 
 \item{thr_coef}{Threshold under which coefficients of \code{Q} are not used.
 Default is 0.6.}

@@ -50,6 +50,7 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' @inheritParams pc_weights_refs
 #' @param use_varimax Whether to transform PCs using a varimax rotation?
 #'   Default is `TRUE`. It generally helps with the warm starts (initializations).
+#' @param ind_plot Indices of individuals to plot. Default doesn't plot anything.
 #' @param ncores Number of cores to use. Default is `1`. You can use e.g.
 #'   `bigparallelr::nb_cores()`.
 #' @inheritDotParams pc_deconv_withstart thr_coef conv_diff max_iter

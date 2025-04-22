@@ -17,9 +17,9 @@ make_pairs <- function(ind, how = c("step1", "step2", "all")) {
 
   how <- match.arg(how)
   if (how == "step1") {
-    cbind(head(ind, -1), tail(ind, -1))
+    cbind(utils::head(ind, -1), utils::tail(ind, -1))
   } else if (how == "step2") {
-    cbind(head(ind, -1), tail(ind, -1))[c(TRUE, FALSE), , drop = FALSE]
+    cbind(utils::head(ind, -1), utils::tail(ind, -1))[c(TRUE, FALSE), , drop = FALSE]
   } else if (how == "all") {
     expand.grid(ind, ind) %>%
       filter(Var1 < Var2) %>%
@@ -48,7 +48,8 @@ make_pairs <- function(ind, how = c("step1", "step2", "all")) {
 #' PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
 #' pc_plot(PC, PC_ref)
 #' pc_plot(PC, PC_ref, color_var = iris$Species, which_pc_pairs = make_pairs(1:4, "all"))
-#' pc_plot(PC, PC_ref, color_var = iris$Species) + facet_wrap(~ facet, nrow = 2, scales = "free")
+#' pc_plot(PC, PC_ref, color_var = iris$Species) +
+#'   ggplot2::facet_wrap(~ facet, nrow = 2, scales = "free")
 pc_plot <- function(PC, PC_ref = PC[0, ],
                     which_pc_pairs = make_pairs(1:ncol(PC)),
                     color_var = I("black"),
@@ -109,7 +110,8 @@ rank_in_group <- function(Q, group) {
 #'
 #' @inheritParams pc_weights_refs
 #' @param rank_in_group The output of [rank_in_group()].
-#' @param colors
+#' @param colors Colors to use for references. You can assign these colors to
+#'   colnames of `Q` to assign specific colors to specific references.
 #'
 #' @return A ggplot object.
 #' @export
@@ -128,7 +130,8 @@ rank_in_group <- function(Q, group) {
 #' colnames(Q) <- colors
 #' pc_plot_mixtures(Q, rank_in_grp)
 #' pc_plot_mixtures(Q, rank_in_grp, colors = rev(colors))
-#' pc_plot_mixtures(Q, rank_in_grp) + facet_wrap(~ .GRP, ncol = 1, scales = "free_x")
+#' pc_plot_mixtures(Q, rank_in_grp) +
+#'   ggplot2::facet_wrap(~ .GRP, ncol = 1, scales = "free_x")
 pc_plot_mixtures <- function(Q, rank_in_group, colors = c(
   "#64cb64", "#e7be28", "#d14f29", "#6687d2", "#add042", "#cc4eb7",
   "#e6831f", "#c5b0d5", "#5ccda0", "#613d9a", "#c79335", "#46d0e5",

@@ -5,7 +5,7 @@
 #' @param Q Matrix of mixture coefficients (L x K), typically the output
 #'   of [pc_mixtures()].
 #' @param m_exponent Exponent to be applied to the coefficients of `Q`.
-#'   A value between 3 and 30 is usually appropriate to priotize larger Q values.
+#'   A value between 3 and 30 is usually appropriate to prioritize larger Q values.
 #' @param thr_coef Threshold under which coefficients of `Q` are not used.
 #'   Default is 0.6.
 #'

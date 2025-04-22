@@ -17,10 +17,12 @@ pc_deconv(
 \item{PC}{Matrix of PC scores, N x K.}
 
 \item{m_exponent}{Exponent to be applied to the coefficients of \code{Q}.
-A value between 3 and 30 is usually appropriate to priotize larger Q values.}
+A value between 3 and 30 is usually appropriate to prioritize larger Q values.}
 
 \item{use_varimax}{Whether to transform PCs using a varimax rotation?
 Default is \code{TRUE}. It generally helps with the warm starts (initializations).}
+
+\item{ind_plot}{Indices of individuals to plot. Default doesn't plot anything.}
 
 \item{ncores}{Number of cores to use. Default is \code{1}. You can use e.g.
 \code{bigparallelr::nb_cores()}.}

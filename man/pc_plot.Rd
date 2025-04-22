@@ -46,5 +46,6 @@ PC <- prcomp(iris[1:4])$x
 PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
 pc_plot(PC, PC_ref)
 pc_plot(PC, PC_ref, color_var = iris$Species, which_pc_pairs = make_pairs(1:4, "all"))
-pc_plot(PC, PC_ref, color_var = iris$Species) + facet_wrap(~ facet, nrow = 2, scales = "free")
+pc_plot(PC, PC_ref, color_var = iris$Species) +
+  ggplot2::facet_wrap(~ facet, nrow = 2, scales = "free")
 }

@@ -25,7 +25,8 @@ of \code{\link[=pc_mixtures]{pc_mixtures()}}.}
 
 \item{rank_in_group}{The output of \code{\link[=rank_in_group]{rank_in_group()}}.}
 
-\item{colors}{}
+\item{colors}{Colors to use for references. You can assign these colors to
+colnames of \code{Q} to assign specific colors to specific references.}
 }
 \value{
 A ggplot object.
@@ -45,5 +46,6 @@ colors <- c("#5ccda0", "#613d9a", "#c79335")
 colnames(Q) <- colors
 pc_plot_mixtures(Q, rank_in_grp)
 pc_plot_mixtures(Q, rank_in_grp, colors = rev(colors))
-pc_plot_mixtures(Q, rank_in_grp) + facet_wrap(~ .GRP, ncol = 1, scales = "free_x")
+pc_plot_mixtures(Q, rank_in_grp) +
+  ggplot2::facet_wrap(~ .GRP, ncol = 1, scales = "free_x")
 }
