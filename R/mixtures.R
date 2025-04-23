@@ -96,7 +96,7 @@ pc_mixtures <- function(PC, PC_ref,
     sol0[ind] <- sol
 
     sol0
-  }))
+  }, future.seed = NULL))
 
   rownames(res) <- rownames(PC)
   colnames(res) <- rownames(PC_ref)

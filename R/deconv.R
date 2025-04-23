@@ -65,7 +65,7 @@ pc_deconv_withstart <- function(PC, PC_ref_init, m_exponent, thr_coef = 0.6,
 #' @examples
 #' PC <- prcomp(iris[1:4])$x
 #' PC_ref_cheat <- do.call("rbind", by(PC, iris$Species, colMeans))  # cheating
-#' all_PC_ref_conv <- pc_deconv(PC, m_exponent = 10)
+#' all_PC_ref_conv <- pc_deconv(PC, m_exponent = 10, ind_plot = 1:nrow(PC))
 #' plot(PC, pch = 20, cex = 1)
 #' points(PC_ref_cheat, col = "orange", pch = 3, lwd = 2)
 #' points(pc_refs(PC, all_PC_ref_conv[[3]]), col = "red", pch = 4, lwd = 2)
@@ -93,13 +93,12 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   for (K in 2:ncol(PC0)) {
 
     PC <- PC0[, 1:K]
-    PC_for_init <- PC0_for_init[, 1:K]
-
     PC_ref <- pc_refs(PC, W)
     Q0 <- pc_mixtures(PC, PC_ref, max_coef = 2)
 
+    PC_for_init <- PC0_for_init[, K, drop = FALSE]
     all_diff <- PC_for_init - Q0 %*% pc_refs(PC_for_init, W)
-    dist <- abs(all_diff[, K])
+    dist <- abs(all_diff)
     PC_ref <- rbind(PC_ref, PC[which.max(dist), ])
     if (length(ind_plot) > 0) {
       p <- pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot],
