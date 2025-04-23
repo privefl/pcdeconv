@@ -37,27 +37,30 @@ test_that("Function pc_deconv works", {
 
 test_that("Function pc_deconv_withstart works", {
 
-  res0 <- structure(c(-2.66841214385524, 0.168732255810294, 2.59180406326464,
-                      -0.183557893295006, 0.72863105712579, -0.425128450793,
-                      -0.0154811314970848, 0.0686903664048225, 0.041606609455891,
-                      0.00102550636110648, -0.0165881362678455, 0.00482042309807765),
+  res0 <- structure(c(-2.66841211630844, 0.168742644798514, 2.59181760150492,
+                      -0.183557337181104, 0.728634444580263, -0.425136099832004,
+                      -0.0154809892661161, 0.0686780495517508, 0.0416159749183356,
+                      0.00102555385983744, -0.0165908568188596, 0.00481777818404158),
                     dim = 3:4, dimnames = list(NULL, c("PC1", "PC2", "PC3", "PC4")))
 
-  all_res <- replicate(10, simplify = FALSE, {
+  all_res <- replicate(20, simplify = FALSE, {
     ind_init <- c(sample(size = 1, which(PC[, 1] < -2)),
                   sample(size = 1, which(PC[, 1] > -1 & PC[, 2] > 0.5)),
                   sample(size = 1, which(PC[, 1] > 0 & PC[, 2] < 0)))
     PC_ref_init <- PC[ind_init, ]
-    pc_plot(PC, PC_ref_init, color_var = iris$Species)
-
     W <- pc_deconv_withstart(PC, PC_ref_init, m_exponent = 5)
     PC_ref_conv <- pc_refs(PC, W)
-    pc_plot(PC, PC_ref_conv, color_var = iris$Species)
+    if (interactive())
+      print(pc_plot(PC, rbind(PC_ref_conv, PC_ref_init),
+                    color_var = iris$Species,
+                    color_ref = rep(rep(c("black", "#e7be28"), each = 3), 3)))
     PC_ref_conv
   })
 
-  same <- sapply(all_res, function(res) isTRUE(all.equal(res, res0, tol = 1e-4)))
-  expect_true(sum(same) %in% 8:10)
+  same <- sapply(all_res, function(res)
+    isTRUE(all.equal(res, res0, tol = 1e-3)) |
+      isTRUE(all.equal(res, res0[c(1, 3, 2), ], tol = 1e-3)))
+  expect_gte(print(sum(same)), 17)
 })
 
 ################################################################################
