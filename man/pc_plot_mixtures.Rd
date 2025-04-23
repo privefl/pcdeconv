@@ -7,7 +7,7 @@
 \alias{COLORS_DECONV}
 \title{Plot mixtures}
 \format{
-COLORS_DECONV: a vector of 30 colors.
+COLORS_DECONV: a vector of 24 colors.
 }
 \usage{
 pc_plot_mixtures(Q, rank_in_group, colors = COLORS_DECONV)
