@@ -77,7 +77,7 @@ rank_in_group <- function(Q, group) {
 #' @keywords internal
 #' @export
 COLORS_DECONV <- c(
-  "#64cb64", "#e7be28", "#6687d2", "#add042", "#cc4eb7", "#e6831f",
+  "#64cb64", "#f2d300", "#6687d2", "#add042", "#cc4eb7", "#e6831f",
   "#c5b0d5", "#5ccda0", "#613d9a", "#c79335", "#46d0e5", "#b94a7b",
   "#60924e", "#f7b6d2", "#d62728", "#8c564b", "#aec7e8", "#ffbb78",
   "#98df8a", "#ff9896", "#8d5edf", "#c49c94", "#1f77b4", "#000000"
