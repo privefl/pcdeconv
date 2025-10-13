@@ -114,7 +114,7 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
   }
 
   if (length(ind_plot) > 0)
-    print(pc_plot(PC0[ind_plot, ], pc_refs(PC0, W)))
+    try(print(pc_plot(PC0[ind_plot, ], pc_refs(PC0, W))), silent = TRUE)
 
   all_res
 }
