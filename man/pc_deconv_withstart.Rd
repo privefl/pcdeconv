@@ -44,6 +44,8 @@ Default is \code{1}. A value of e.g. \code{2} is used \emph{internally} sometime
 Default is \code{1 - 1e-8}, i.e. the sum must be very close to \code{1}.}
     \item{\code{nb_coef}}{Maximum number of non-zero mixture coefficients. Default is
 \code{Inf} (no restriction).}
+    \item{\code{weight_by_dist}}{(Used internally) Whether to downweight Q by the
+distance to closest reference. Default is \code{FALSE}.}
   }}
 }
 \value{
