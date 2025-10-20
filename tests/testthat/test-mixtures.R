@@ -37,3 +37,32 @@ test_that("Function pc_mixtures works", {
 })
 
 ################################################################################
+
+test_that("Function pc_mixtures works", {
+
+  Y <- prcomp(iris[1:4])$x
+  X <- do.call("rbind", by(Y, iris$Species, colMeans))
+
+  Dmat <- Matrix::nearPD(tcrossprod(X), conv.norm.type = "F",
+                         ensureSymmetry = TRUE, base.matrix = TRUE)$mat
+  L <- nrow(X)
+  Amat <- cbind(1,   -1, diag(L))
+  bvec <- c(1 - 1e-8, -1, rep(0, L))
+
+  apply(Y, 1, function(Y_i) {
+    cat(".")
+    dvec <- drop(X %*% Y_i)
+    res1 <- pcdeconv:::solve_QP(Dmat, dvec, Amat, bvec)
+    # res1.2 <- 0.5 * crossprod(res1, Dmat) %*% res1 - crossprod(dvec, res1)
+    res2 <- pcdeconv:::solve_QP_osqp(Dmat, dvec, Amat, bvec)
+    # res2.2 <- 0.5 * crossprod(res2, Dmat) %*% res2 - crossprod(dvec, res2)
+    # expect_equal(res1.2, res2.2, tolerance = 1e-5)
+    expect_equal(res1, res2, tolerance = 1e-5)
+    NULL
+  })
+
+})
+
+################################################################################
+
+

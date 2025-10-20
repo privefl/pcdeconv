@@ -6,19 +6,28 @@ globalVariables(c("i", ".GRP", ".ID", ".VAL", "Var1", "Var2", "color", "facet",
 
 ################################################################################
 
-solve_QP <- function(X, y, Dmat, dvec, Amat, bvec) {
-  tryCatch(
-    quadprog::solve.QP(Dmat, dvec, Amat, bvec),
-    error = function(e) {
-      # Save inputs to an .rds file with a timestamp
-      timestamp <- format(as.POSIXct(Sys.time(), tz = "Europe/Paris"), "%Y%m%d_%H%M%S")
-      debug_file <- paste0("qp_debug_", timestamp, ".rds")
-      saveRDS(list(X = X, y = y, Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec), debug_file)
-      message("Arguments saved to: ", debug_file)
-      stop(conditionMessage(e), call. = FALSE)
-    }
-  )
+solve_QP_osqp <- function(Dmat, dvec, Amat, bvec) {
+  # osqp uses a slightly different formulation
+  lo <- bvec[-2]
+  osqp::osqp(
+    P = Dmat,
+    q = -dvec,
+    A = t(Amat[, -2, drop = FALSE]),
+    l = lo,
+    u = rep(1, length(lo)),
+    pars = osqp::osqpSettings(verbose = FALSE, eps_abs = 1e-6, eps_rel = 1e-6,
+                              eps_prim_inf = 1e-8, eps_dual_inf = 1e-8)
+  )$Solve()$x
 }
+
+solve_QP <- function(Dmat, dvec, Amat, bvec) {
+
+  res <- try(quadprog::solve.QP(Dmat, dvec, Amat, bvec)$sol, silent = TRUE)
+
+  if (inherits(res, "try-error")) solve_QP_osqp(Dmat, dvec, Amat, bvec) else res
+}
+
+################################################################################
 
 #' Mixture coefficients
 #'
@@ -77,7 +86,7 @@ pc_mixtures <- function(PC, PC_ref,
     Y_i <- Y[i, ]
     dvec <- drop(X %*% Y_i)
 
-    sol0 <- solve_QP(Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec, X = X, y = Y_i)$sol
+    sol0 <- solve_QP(Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec)
     ind <- which(sol0 >= min_coef)
 
     if (length(ind) == 1) {
@@ -89,7 +98,7 @@ pc_mixtures <- function(PC, PC_ref,
 
       ind2 <- c(1L, 2L, ind + 2L)
       sol <- solve_QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
-                      Amat = Amat[ind, ind2], bvec = bvec[ind2], X = X, y = Y_i)$sol
+                      Amat = Amat[ind, ind2], bvec = bvec[ind2])
 
     } else {
 
@@ -98,7 +107,7 @@ pc_mixtures <- function(PC, PC_ref,
       all_res <- apply(all_comb, 2, function(ind) {
         ind2 <- c(1L, 2L, ind + 2L)
         sol <- solve_QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
-                        Amat = Amat[ind, ind2], bvec = bvec[ind2], X = X, y = Y_i)$sol
+                        Amat = Amat[ind, ind2], bvec = bvec[ind2])
         err <- sum((Y_i - crossprod(X[ind, ], sol))^2)
         list(sol, err)
       })
