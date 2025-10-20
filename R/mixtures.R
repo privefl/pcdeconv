@@ -10,16 +10,12 @@ solve_QP <- function(X, y, Dmat, dvec, Amat, bvec) {
   tryCatch(
     quadprog::solve.QP(Dmat, dvec, Amat, bvec),
     error = function(e) {
-      # Print the error message
-      message("Error in solve.QP: ", conditionMessage(e))
-
       # Save inputs to an .rds file with a timestamp
       timestamp <- format(as.POSIXct(Sys.time(), tz = "Europe/Paris"), "%Y%m%d_%H%M%S")
       debug_file <- paste0("qp_debug_", timestamp, ".rds")
       saveRDS(list(X = X, y = y, Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec), debug_file)
-
       message("Arguments saved to: ", debug_file)
-      return(NULL)  # return a safe default
+      stop(conditionMessage(e), call. = FALSE)
     }
   )
 }
