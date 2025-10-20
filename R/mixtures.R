@@ -6,7 +6,7 @@ globalVariables(c("i", ".GRP", ".ID", ".VAL", "Var1", "Var2", "color", "facet",
 
 ################################################################################
 
-solve_QP <- function(Dmat, dvec, Amat, bvec) {
+solve_QP <- function(X, y, Dmat, dvec, Amat, bvec) {
   tryCatch(
     quadprog::solve.QP(Dmat, dvec, Amat, bvec),
     error = function(e) {
@@ -16,7 +16,7 @@ solve_QP <- function(Dmat, dvec, Amat, bvec) {
       # Save inputs to an .rds file with a timestamp
       timestamp <- format(as.POSIXct(Sys.time(), tz = "Europe/Paris"), "%Y%m%d_%H%M%S")
       debug_file <- paste0("qp_debug_", timestamp, ".rds")
-      saveRDS(list(Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec), debug_file)
+      saveRDS(list(X = X, y = y, Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec), debug_file)
 
       message("Arguments saved to: ", debug_file)
       return(NULL)  # return a safe default
@@ -81,8 +81,7 @@ pc_mixtures <- function(PC, PC_ref,
     Y_i <- Y[i, ]
     dvec <- drop(X %*% Y_i)
 
-    sol0 <- solve_QP(Dmat = Dmat, dvec = dvec,
-                               Amat = Amat, bvec = bvec)$sol
+    sol0 <- solve_QP(Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec, X = X, y = Y_i)$sol
     ind <- which(sol0 >= min_coef)
 
     if (length(ind) == 1) {
@@ -94,7 +93,7 @@ pc_mixtures <- function(PC, PC_ref,
 
       ind2 <- c(1L, 2L, ind + 2L)
       sol <- solve_QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
-                                Amat = Amat[ind, ind2], bvec = bvec[ind2])$sol
+                      Amat = Amat[ind, ind2], bvec = bvec[ind2], X = X, y = Y_i)$sol
 
     } else {
 
@@ -103,7 +102,7 @@ pc_mixtures <- function(PC, PC_ref,
       all_res <- apply(all_comb, 2, function(ind) {
         ind2 <- c(1L, 2L, ind + 2L)
         sol <- solve_QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
-                                  Amat = Amat[ind, ind2], bvec = bvec[ind2])$sol
+                        Amat = Amat[ind, ind2], bvec = bvec[ind2], X = X, y = Y_i)$sol
         err <- sum((Y_i - crossprod(X[ind, ], sol))^2)
         list(sol, err)
       })
