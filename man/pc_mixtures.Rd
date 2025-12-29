@@ -10,7 +10,8 @@ pc_mixtures(
   min_coef = 1e-05,
   max_coef = 1,
   min_sum = 1 - 1e-08,
-  nb_coef = Inf
+  nb_coef = Inf,
+  weight_by_dist = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,9 @@ Default is \code{1 - 1e-8}, i.e. the sum must be very close to \code{1}.}
 
 \item{nb_coef}{Maximum number of non-zero mixture coefficients. Default is
 \code{Inf} (no restriction).}
+
+\item{weight_by_dist}{(Used internally) Whether to downweight Q by the
+distance to closest reference. Default is \code{FALSE}.}
 }
 \value{
 A matrix of mixture coefficients (N x L).

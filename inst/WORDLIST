@@ -2,6 +2,7 @@ CMD
 Codecov
 DECONV
 deconvolution
+downweight
 facetting
 ggplot
 initialization

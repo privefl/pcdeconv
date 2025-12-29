@@ -6,6 +6,29 @@ globalVariables(c("i", ".GRP", ".ID", ".VAL", "Var1", "Var2", "color", "facet",
 
 ################################################################################
 
+solve_QP_osqp <- function(Dmat, dvec, Amat, bvec) {
+  # osqp uses a slightly different formulation
+  lo <- bvec[-2]
+  osqp::osqp(
+    P = Dmat,
+    q = -dvec,
+    A = t(Amat[, -2, drop = FALSE]),
+    l = lo,
+    u = rep(1, length(lo)),
+    pars = osqp::osqpSettings(verbose = FALSE, eps_abs = 1e-6, eps_rel = 1e-6,
+                              eps_prim_inf = 1e-8, eps_dual_inf = 1e-8)
+  )$Solve()$x
+}
+
+solve_QP <- function(Dmat, dvec, Amat, bvec) {
+
+  res <- try(quadprog::solve.QP(Dmat, dvec, Amat, bvec)$sol, silent = TRUE)
+
+  if (inherits(res, "try-error")) solve_QP_osqp(Dmat, dvec, Amat, bvec) else res
+}
+
+################################################################################
+
 #' Mixture coefficients
 #'
 #' @param PC Matrix of principal components (N x K, where K is the number of PCs).
@@ -21,6 +44,8 @@ globalVariables(c("i", ".GRP", ".ID", ".VAL", "Var1", "Var2", "color", "facet",
 #'   Default is `1 - 1e-8`, i.e. the sum must be very close to `1`.
 #' @param nb_coef Maximum number of non-zero mixture coefficients. Default is
 #'   `Inf` (no restriction).
+#' @param weight_by_dist (Used internally) Whether to downweight Q by the
+#'   distance to closest reference. Default is `FALSE`.
 #'
 #' @return A matrix of mixture coefficients (N x L).
 #' @export
@@ -29,6 +54,7 @@ globalVariables(c("i", ".GRP", ".ID", ".VAL", "Var1", "Var2", "color", "facet",
 #' A `future.apply` loop is used internally, which will use parallelism if you
 #' registered a parallel backend with e.g. `future::plan`.
 #'
+#' @import dplyr
 #'
 #' @examples
 #' PC <- prcomp(iris[1:4])$x
@@ -37,7 +63,8 @@ globalVariables(c("i", ".GRP", ".ID", ".VAL", "Var1", "Var2", "color", "facet",
 #'
 pc_mixtures <- function(PC, PC_ref,
                         min_coef = 1e-5, max_coef = 1,
-                        min_sum = 1 - 1e-8, nb_coef = Inf) {
+                        min_sum = 1 - 1e-8, nb_coef = Inf,
+                        weight_by_dist = FALSE) {
 
   stopifnot(nrow(PC_ref) >= 2)
   stopifnot(ncol(PC_ref) == ncol(PC))
@@ -54,13 +81,12 @@ pc_mixtures <- function(PC, PC_ref,
   Dmat <- cp_X_pd$mat
 
   # solve a QP for each individual PC
-  res <- do.call("rbind", future.apply::future_lapply(1:nrow(Y), function(i) {
+  Q <- do.call("rbind", future.apply::future_lapply(1:nrow(Y), function(i) {
 
     Y_i <- Y[i, ]
     dvec <- drop(X %*% Y_i)
 
-    sol0 <- quadprog::solve.QP(Dmat = Dmat, dvec = dvec,
-                               Amat = Amat, bvec = bvec)$sol
+    sol0 <- solve_QP(Dmat = Dmat, dvec = dvec, Amat = Amat, bvec = bvec)
     ind <- which(sol0 >= min_coef)
 
     if (length(ind) == 1) {
@@ -71,8 +97,8 @@ pc_mixtures <- function(PC, PC_ref,
     } else if (length(ind) <= nb_coef) {
 
       ind2 <- c(1L, 2L, ind + 2L)
-      sol <- quadprog::solve.QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
-                                Amat = Amat[ind, ind2], bvec = bvec[ind2])$sol
+      sol <- solve_QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
+                      Amat = Amat[ind, ind2], bvec = bvec[ind2])
 
     } else {
 
@@ -80,8 +106,8 @@ pc_mixtures <- function(PC, PC_ref,
       all_comb <- utils::combn(ind, nb_coef)
       all_res <- apply(all_comb, 2, function(ind) {
         ind2 <- c(1L, 2L, ind + 2L)
-        sol <- quadprog::solve.QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
-                                  Amat = Amat[ind, ind2], bvec = bvec[ind2])$sol
+        sol <- solve_QP(Dmat = Dmat[ind, ind],  dvec = dvec[ind],
+                        Amat = Amat[ind, ind2], bvec = bvec[ind2])
         err <- sum((Y_i - crossprod(X[ind, ], sol))^2)
         list(sol, err)
       })
@@ -98,9 +124,15 @@ pc_mixtures <- function(PC, PC_ref,
     sol0
   }, future.seed = NULL))
 
-  rownames(res) <- rownames(PC)
-  colnames(res) <- rownames(PC_ref)
-  res
+  dist_to_closest_ref <-
+    apply(PC_ref, 1, function(pc_ref) rowSums(sweep(PC, 2, pc_ref, '-')^2)) %>%
+    apply(1, min) %>%
+    sqrt()
+  w <- pmin(stats::median(dist_to_closest_ref) / dist_to_closest_ref, 1)
+
+  rownames(Q) <- rownames(PC)
+  colnames(Q) <- rownames(PC_ref)
+  if (weight_by_dist) sweep(Q, 1, w, '*') else Q
 }
 
 ################################################################################

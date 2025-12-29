@@ -31,7 +31,8 @@ pc_plot_mixtures <- function(Q, rank_in_group, colors = COLORS_DECONV) {
   if (ncol(Q) > length(colors)) stop("Not enough colors provided.")
 
   df <- cbind.data.frame(rank_in_group, Q) %>%
-    tidyr::pivot_longer(-c(.GRP, .ID))
+    tidyr::pivot_longer(-c(.GRP, .ID)) %>%
+    filter(value > 0)
 
   cn <- colnames(Q)
   if (!is.null(cn) && all(cn %in% colors)) {

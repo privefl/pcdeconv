@@ -56,22 +56,28 @@ test_that("Function pc_plot_mixtures works", {
   PC <- prcomp(iris[1:4])$x
   PC_ref <- do.call("rbind", by(PC, iris$Species, colMeans))
   Q <- pc_mixtures(PC, PC_ref)
+  kept_in_plot <- which(t(Q) > 0)
 
   rank_in_grp <- rank_in_group(Q, iris$Species)
   p1 <- pc_plot_mixtures(Q, rank_in_grp)
   expect_is(p1, "ggplot")
   colors1 <- c("#64cb64", "#f2d300", "#6687d2")
-  expect_identical(ggplot2::ggplot_build(p1)$data[[1]]$fill, rep(colors1, 150))
+  expect_identical(ggplot2::ggplot_build(p1)$data[[1]]$fill,
+                   rep(colors1, 150)[kept_in_plot])
 
   colors2 <- c("#5ccda0", "#613d9a", "#c79335")
   colnames(Q) <- colors2
   p2 <- pc_plot_mixtures(Q, rank_in_grp)
-  expect_identical(ggplot2::ggplot_build(p2)$data[[1]]$fill, rep(colors2, 150))
-  expect_identical(ggplot2::ggplot_build(p2)$data[[1]]$group, rep(1:3, 150))
+  expect_identical(ggplot2::ggplot_build(p2)$data[[1]]$fill,
+                   rep(colors2, 150)[kept_in_plot])
+  expect_identical(ggplot2::ggplot_build(p2)$data[[1]]$group,
+                   rep(1:3, 150)[kept_in_plot])
 
   p3 <- pc_plot_mixtures(Q, rank_in_grp, colors = rev(colors2))
-  expect_identical(ggplot2::ggplot_build(p3)$data[[1]]$fill, rep(colors2, 150))
-  expect_identical(ggplot2::ggplot_build(p3)$data[[1]]$group, rep(3:1, 150))
+  expect_identical(ggplot2::ggplot_build(p3)$data[[1]]$fill,
+                   rep(colors2, 150)[kept_in_plot])
+  expect_identical(ggplot2::ggplot_build(p3)$data[[1]]$group,
+                   rep(3:1, 150)[kept_in_plot])
 
 })
 
