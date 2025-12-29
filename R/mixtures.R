@@ -128,7 +128,7 @@ pc_mixtures <- function(PC, PC_ref,
     apply(PC_ref, 1, function(pc_ref) rowSums(sweep(PC, 2, pc_ref, '-')^2)) %>%
     apply(1, min) %>%
     sqrt()
-  w <- pmin(median(dist_to_closest_ref) / dist_to_closest_ref, 1)
+  w <- pmin(stats::median(dist_to_closest_ref) / dist_to_closest_ref, 1)
 
   rownames(Q) <- rownames(PC)
   colnames(Q) <- rownames(PC_ref)
