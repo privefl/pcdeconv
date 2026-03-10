@@ -1,6 +1,6 @@
 Package: pcdeconv
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.7
+Version: 0.0.8
 Authors@R: 
     person("Florian", "Privé", email = "florian.prive.21@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).

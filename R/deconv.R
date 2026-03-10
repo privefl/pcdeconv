@@ -99,7 +99,10 @@ pc_deconv <- function(PC, m_exponent, use_varimax = TRUE,
     PC_for_init <- PC0_for_init[, K, drop = FALSE]
     all_diff <- PC_for_init - Q0 %*% pc_refs(PC_for_init, W)
     dist <- abs(all_diff)
-    PC_ref <- rbind(PC_ref, PC[which.max(dist), ])
+    PC_ref_init <- rbind(PC_ref, PC[which.max(dist), ])
+    Q_init <- pc_mixtures(PC, PC_ref_init, max_coef = 1.5)
+    w <- Q_init[, K+1]^m_exponent
+    PC_ref <- rbind(PC_ref, (w %*% PC) / sum(w))
     if (length(ind_plot) > 0) {
       p <- pc_plot(PC[ind_plot, ], PC_ref, color_var = dist[ind_plot],
                    which_pc_pairs = make_pairs(tail(1:K, 5))) +
